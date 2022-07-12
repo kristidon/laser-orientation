@@ -157,9 +157,16 @@ What do you notice about this data set? What do you wonder? Add one-two
 thoughts following the dashes next (you can add additional dashes if you
 like!):
 
--   
+-   this looks like a student-level dataset of science grades from 2016
+    (guess based on semester information and course id)
 
--   
+-   I wonder if there is a more detailed codebook to explain the
+    variables - their source, context, how they were collected, what
+    grade level(s) are included, why there appears to be variation in
+    the total points possible among students in the same course; and
+    what q1-10, int, pc, uv mean. I also wonder if students are in the
+    file more than once (e.g., is the course a semester or full year
+    course? and/or did students take more than one science course?)
 
 There are other ways to inspect your data; the `glimpse()` function
 provides one such way. Run the code below to take a glimpse at your
@@ -184,11 +191,14 @@ your area of work and/or research.
 
 What rows typically (or you think may) represent:
 
--   
+-   based on what I'm able to see, it looks like rows may represent
+    student-course-semester grades
 
 What columns typically (or you think may) represent:
 
--   
+-   columns may represent variables, or the items that may vary across
+    student-course-semesters (e.g,. grades) or may not vary (e.g.,
+    gender)
 
 Next, we'll use a few functions that are handy for preparing data in
 table form.
@@ -235,7 +245,7 @@ variable to this code.
 
 ```{r}
 d |> 
-  select(student_id, total_points_possible, total_points_earned)
+  select(student_id, total_points_possible, total_points_earned, percentage_earned, FinalGradeCEMS)
 ```
 
 Once added, the output should be different than in the code above -
@@ -260,14 +270,17 @@ value - larger or smaller (maybe much larger or smaller - feel free to
 play around with the code a bit!).
 
 ```{r}
+# who earned an A (assuming 90+)
 d |> 
-  filter(FinalGradeCEMS > 70)
+  filter(FinalGradeCEMS >= 90)
 ```
 
 What happens when you change the cut-off from 70 to something else? Add
 a thought (or more):
 
--   
+-   203 students are displayed when filtering to 90% or higher, compared
+    to 438 with a cutoff of 70, which makes sense because this should be
+    a subset of the group of students displayed at 70 or higher
 
 ### Arrange
 
@@ -302,8 +315,8 @@ glimpsed at the names of all of the variables.
 
 ```{r}
 d |> 
-  select(student_id, FinalGradeCEMS) |> 
-  arrange(desc(FinalGradeCEMS))
+  select(student_id, TimeSpent) |> 
+  arrange(desc(TimeSpent))
 ```
 
 ### Reach 1 🎉
@@ -318,7 +331,8 @@ who wish to do a bit more with these functions at this time (we'll do
 more in class, too!)*
 
 ```{r}
-
+d |>
+  select(student_id,subject,FinalGradeCEMS,TimeSpent) |> filter(FinalGradeCEMS>=90 | FinalGradeCEMS<=70) |> arrange(TimeSpent)
 ```
 
 ## 3. EXPLORE
@@ -357,7 +371,7 @@ consider this list of valid color names here:
 
 ```{r}
 ggplot(d, aes(x = FinalGradeCEMS)) +
-  geom_histogram(fill = "blue")
+  geom_histogram(fill = "orange")
 ```
 
 Finally, we'll make one more change; visualize the distribution of
@@ -366,8 +380,8 @@ so by swapping out the name for another variable with FinalGradeCEMS.
 Also, change the color to one other than blue.
 
 ```{r}
-ggplot(d, aes(x = FinalGradeCEMS)) +
-  geom_histogram(fill = "blue")
+ggplot(d, aes(x = TimeSpent)) +
+  geom_histogram(fill = "red")
 ```
 
 ### Reach 2 🎉
@@ -378,7 +392,7 @@ the names of two variables to the code below for what is now simply XXX
 (a placeholder).
 
 ```{r}
-ggplot(d, aes(x = XXX, y = XXX)) +
+ggplot(d, aes(x = FinalGradeCEMS, y = TimeSpent)) +
   geom_point()
 ```
 
@@ -412,7 +426,7 @@ results? We're going to dive into this *much* more: if you have many
 questions now, you're in the right spot!
 
 ```{r}
-m2 <- lm(FinalGradeCEMS ~ TimeSpent + subject, data = d)
+m2 <- lm(FinalGradeCEMS ~ TimeSpent + subject + int + Gender, data = d)
 summary(m2)
 ```
 
